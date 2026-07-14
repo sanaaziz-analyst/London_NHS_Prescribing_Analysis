@@ -9,7 +9,7 @@
 
 ## Report Preview
 
-*(Add a screenshot or short screen-recording GIF of Page 1 here, saved to `images/report_preview.png` or `.gif`)*
+*(Add a screenshot or short screen-recording GIF of Page 1 here, saved to `images/report_preview.gif`)*
 
 ---
 
