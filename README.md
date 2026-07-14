@@ -129,7 +129,7 @@ matching_files = glob.glob("*EPD_SNOMED_*.csv")
 list_of_tables = [pd.read_csv(file) for file in matching_files]
 combined = pd.concat(list_of_tables, ignore_index=True)
 ```
-
+![combineing](images/py_01_combine.png)
 *(Add a screenshot of this step here, `images/py_01_combine.png`)*
 
 All 12 monthly exports were combined into a single table using `pandas` and `glob`, rather than opening and merging each file by hand.
