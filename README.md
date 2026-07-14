@@ -1,7 +1,5 @@
 # London NHS Prescribing Analysis
 
-# London NHS Prescribing Analysis
-
 **Industry:** Healthcare and Public Sector Data
 **Data period:** April 2025 to March 2026
 
