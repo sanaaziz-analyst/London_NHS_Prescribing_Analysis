@@ -8,8 +8,7 @@
 ---
 
 ## Report Preview
-
-*(Add a screenshot or short screen-recording GIF of Page 1 here, saved to `images/report_preview.gif`)*
+[nhs_report_preview.gif](images/report_preview.gif)
 
 ---
 
