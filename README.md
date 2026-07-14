@@ -438,10 +438,9 @@ Feel free to open the .pbix file yourself, explore the pages, and reach out with
 
 ## Contact
 
-**[Your name]**
+**Sana Aziz**
 
-Data Analyst | SQL • Power BI • Python
+Data Analyst | SQL • Excel • Power BI • Tableau • Python
 
 London, UK
-
-*(Add your email and LinkedIn badges/links here, matching the style of your other project's README)*
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-sana--aziz--analyst--uk-0077B5?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/sana-aziz-analyst-uk/)
