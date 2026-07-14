@@ -1,5 +1,7 @@
 # London NHS Prescribing Analysis
 
+# London NHS Prescribing Analysis
+
 **Industry:** Healthcare and Public Sector Data
 **Data period:** April 2025 to March 2026
 
@@ -8,7 +10,8 @@
 ---
 
 ## Report Preview
-[nhs_report_preview.gif](images/report_preview.gif)
+
+![Report preview](images/report_preview.gif)
 
 ---
 
@@ -31,13 +34,12 @@ A three page Power BI dashboard analysing over two million real NHS prescribing 
 
 | File | Description | Link |
 |---|---|---|
+| Raw data | Original, unmodified monthly NHSBSA exports | [Raw data folder](./Raw%20data) |
 | Python cleaning and merging | Combines 12 monthly NHSBSA exports, keeps only needed columns, adds disease category labels, checks for unmatched rows | [nhs_prescribing.ipynb](./nhs_prescribing.ipynb) |
 | Python, loading to MySQL | Loads the cleaned CSV into a local MySQL database | [uploading_to_MYSQL.ipynb](./uploading_to_MYSQL.ipynb) |
 | SQL queries | All business-question queries used to answer the report's core questions | [london_prescribing_sql.sql](./london_prescribing_sql.sql) |
-| Power BI report | Full three page .pbix file, open in Power BI Desktop to explore | [Download .pbix](./NHS_London_Prescribing_Analysis.pbix) |
+| Power BI report | Full three page .pbix file, open in Power BI Desktop to explore | [Download .pbix](./nhs.pbix) |
 | Power BI theme | Custom NHS-branded colour theme used throughout the report | [nhs_london_prescribing_theme.json](./nhs_london_prescribing_theme.json) |
-
-*(Raw monthly CSVs are not included in this repository due to file size — see Phase 1 below for the exact NHSBSA source and filters used to reproduce them.)*
 
 ---
 
@@ -65,7 +67,7 @@ The core question: does prescribing volume predict prescribing cost? Put simply,
 
 #### Datasets
 
-- Raw monthly NHSBSA exports are not included in this repository due to file size, see Phase 1 below for the exact source and filters used
+- Raw datasets can be found in the `Raw data` folder
 - The cleaned, merged dataset, `london_prescribing_clean.csv`, is produced by the Python notebook below and loaded directly into MySQL
 
 #### Data Cleaning and Analysis
@@ -109,7 +111,7 @@ Source data was manually downloaded from the [NHSBSA Open Data Portal, English P
 | Cardiovascular | Atorvastatin, Amlodipine |
 | Pain Relief | Paracetamol, Ibuprofen |
 
-This produced 12 monthly CSV files, `EPD_SNOMED_202504-000000000000.csv` through `EPD_SNOMED_202603-000000000000.csv`, each a genuine, unmodified government export.
+This produced 12 monthly CSV files, `EPD_SNOMED_202504-000000000000.csv` through `EPD_SNOMED_202603-000000000000.csv`, each a genuine, unmodified government export. These raw files sit in the `Raw data` folder in this repository.
 
 ---
 
@@ -121,78 +123,31 @@ Before any analysis, the raw monthly exports needed real cleaning. Each file arr
 
 **Finding and combining all 12 monthly files**
 
-```python
-import pandas as pd
-import glob
-
-matching_files = glob.glob("*EPD_SNOMED_*.csv")
-list_of_tables = [pd.read_csv(file) for file in matching_files]
-combined = pd.concat(list_of_tables, ignore_index=True)
-```
-![combineing](images/py_01_combine.png)
-*(Add a screenshot of this step here, `images/py_01_combine.png`)*
+![Combining all monthly files](images/py_01_combine.png)
 
 All 12 monthly exports were combined into a single table using `pandas` and `glob`, rather than opening and merging each file by hand.
 
 **Reducing to the columns actually needed**
 
-```python
-columns_we_want = [
-    "YEAR_MONTH", "ICB_NAME", "PRACTICE_NAME",
-    "BNF_CHEMICAL_SUBSTANCE", "BNF_PRESENTATION_NAME",
-    "ITEMS", "ACTUAL_COST", "QUANTITY",
-]
-columns_available = [col for col in columns_we_want if col in combined.columns]
-combined = combined[columns_available]
-```
-
-*(Add a screenshot here, `images/py_02_column_select.png`)*
+![Selecting only the needed columns](images/py_02_column_select.png)
 
 27 raw columns were reduced down to the 8 actually needed for analysis.
 
 **Adding a disease category label**
 
-```python
-drug_to_category = {
-    "Metformin hydrochloride": "Diabetes",
-    "Insulin glargine": "Diabetes",
-    "Sertraline hydrochloride": "Mental Health",
-    "Citalopram hydrobromide": "Mental Health",
-    "Salbutamol": "Respiratory",
-    "Beclometasone dipropionate": "Respiratory",
-    "Atorvastatin": "Cardiovascular",
-    "Amlodipine": "Cardiovascular",
-    "Paracetamol": "Pain Relief",
-    "Ibuprofen": "Pain Relief",
-}
-combined["DISEASE_CATEGORY"] = combined["BNF_CHEMICAL_SUBSTANCE"].map(drug_to_category)
-```
-
-*(Add a screenshot here, `images/py_03_category_mapping.png`)*
+![Mapping drugs to disease categories](images/py_03_category_mapping.png)
 
 Since NHSBSA data does not pre-label drugs by disease category, a 9th column was added using a manual Python dictionary lookup built by hand for the 10 target drugs.
 
 **Checking what didn't match, rather than assuming the mapping worked**
 
-```python
-missing = combined[combined["DISEASE_CATEGORY"].isna()]
-print(f"Rows without a category: {len(missing)}")
-if len(missing) > 0:
-    print(missing["BNF_CHEMICAL_SUBSTANCE"].unique())
-```
-
-*(Add a screenshot here, `images/py_04_missing_check.png`)*
+![Checking for unmatched rows](images/py_04_missing_check.png)
 
 313 rows did not match any of the 10 target drugs. Checking exactly which drug they belonged to, rather than dropping them blindly, showed all 313 were a single stray drug, Almotriptan, that had slipped through the original download filter. This is a deliberate two-step habit: build the mapping, then verify what it missed, since it is easy to assume a lookup dictionary worked and never actually check.
 
 **Removing the unmatched rows and exporting the final file**
 
-```python
-combined = combined[combined["DISEASE_CATEGORY"].notna()]
-combined.to_csv("london_prescribing_clean.csv", index=False)
-```
-
-*(Add a screenshot here, `images/py_05_export.png`)*
+![Exporting the cleaned file](images/py_05_export.png)
 
 Final dataset: **2,035,897 rows**, down from 2,036,210 before the cleanup, 9 columns, ready for MySQL.
 
@@ -202,21 +157,7 @@ Final dataset: **2,035,897 rows**, down from 2,036,210 before the cleanup, 9 col
 
 **Notebook:** [uploading_to_MYSQL.ipynb](./uploading_to_MYSQL.ipynb)
 
-```python
-import pandas as pd
-import os
-from sqlalchemy import create_engine
-
-df = pd.read_csv("london_prescribing_clean.csv")
-
-db_user = os.environ.get("DB_USER", "root")
-db_password = os.environ.get("DB_PASSWORD", "")
-engine = create_engine(f"mysql+pymysql://{db_user}:{db_password}@localhost/nhs_project")
-
-df.to_sql("london_prescribing", con=engine, if_exists="replace", index=False, chunksize=5000)
-```
-
-*(Add a screenshot here, `images/py_06_mysql_load.png`)*
+![Loading the cleaned data into MySQL](images/py_06_mysql_load.png)
 
 The cleaned CSV was loaded into a local MySQL database using `pandas.to_sql()` with `sqlalchemy` and `pymysql`, rather than `LOAD DATA INFILE`, which repeatedly hit local file permission restrictions in this environment. Database credentials are read from environment variables rather than hardcoded, so this notebook is safe to publish as-is. Row count in MySQL matched the cleaned CSV exactly, 2,035,897 rows.
 
@@ -239,7 +180,7 @@ SELECT
 FROM london_prescribing;
 ```
 
-*(Add a screenshot here, `images/sql_01_overall_totals.png`)*
+![Overall totals](images/sql_01_overall_totals.png)
 
 Across the full 12 months, London's five ICBs recorded **29,720,015 items** at a total cost of **£80,587,945.86**. This is the baseline figure every other percentage in this project is measured against.
 
@@ -256,7 +197,7 @@ GROUP BY disease_category
 ORDER BY total_cost DESC;
 ```
 
-*(Add a screenshot here, `images/sql_02_category_cost.png`)*
+![Cost by disease category](images/sql_02_category_cost.png)
 
 Respiratory tops the list at £33.04 million, 41 per cent of all spend, followed by Diabetes at £23.34 million, 29 per cent, Cardiovascular at £12.15 million, 15.1 per cent, Pain Relief at £6.87 million, 8.5 per cent, and Mental Health at £5.18 million, 6.4 per cent. Respiratory and Diabetes together account for exactly 70 per cent of all prescribing cost across London.
 
@@ -273,7 +214,7 @@ GROUP BY `year_month`, disease_category
 ORDER BY `year_month`, disease_category;
 ```
 
-*(Add a screenshot here, `images/sql_03_monthly_trend.png`)*
+![Monthly trend by category](images/sql_03_monthly_trend.png)
 
 Cardiovascular consistently dominates monthly item volume across the entire year. Respiratory is the one category that breaks pattern, dipping sharply in January and February 2026, the opposite of the winter increase you would normally expect, rather than following the same steady shape as the other four categories.
 
@@ -290,7 +231,7 @@ GROUP BY icb_name
 ORDER BY total_cost DESC;
 ```
 
-*(Add a screenshot here, `images/sql_04_icb_cost.png`)*
+![Cost by ICB](images/sql_04_icb_cost.png)
 
 North West London leads at £19.23 million from 7.40 million items. North East London actually has more items, 7.77 million, but a lower total cost of £17.74 million, since North West London's drug mix skews towards pricier prescriptions.
 
@@ -308,7 +249,7 @@ GROUP BY disease_category, bnf_chemical_substance
 ORDER BY disease_category, total_cost DESC;
 ```
 
-*(Add a screenshot here, `images/sql_05_top_drug_per_category.png`)*
+![Top drug per category](images/sql_05_top_drug_per_category.png)
 
 Insulin glargine drives Diabetes cost at £13.16 million from only 308,442 items, far ahead of Metformin. Beclometasone dipropionate drives Respiratory cost at £28.18 million, more than double Salbutamol's £4.87 million, despite Salbutamol having more items, 1.75 million versus 1.37 million.
 
@@ -326,7 +267,7 @@ GROUP BY bnf_chemical_substance
 ORDER BY avg_cost_per_item DESC;
 ```
 
-*(Add a screenshot here, `images/sql_06_cost_per_item.png`)*
+![Average cost per item](images/sql_06_cost_per_item.png)
 
 Insulin glargine is the single most expensive drug per item at £42.66, followed by Beclometasone dipropionate at £20.62. At the other end, Amlodipine is the cheapest at £0.75 per item. That is a roughly 57 times spread between the most and least expensive drug in the whole dataset, and it is exactly why cost and prescription volume tell two different stories.
 
@@ -344,7 +285,7 @@ ORDER BY total_cost DESC
 LIMIT 10;
 ```
 
-*(Add a screenshot here, `images/sql_07_top_practices.png`)*
+![Top 10 practices](images/sql_07_top_practices.png)
 
 Medicus Health Partners, in North Central London, tops the list at £886,450. Notably, 6 of the 10 highest spending practices sit in South East London, Nexus Health Group, The Lewisham Care Partnership, Modality Lewisham, Valentine Health Partnership, Sidcup Medical Centre, and Eltham Medical Practice, despite South East London not being the highest spending ICB overall. Spend at the practice level is concentrated, not evenly spread.
 
@@ -363,7 +304,7 @@ GROUP BY icb_name, disease_category
 ORDER BY icb_name, total_items DESC;
 ```
 
-*(Add a screenshot here, `images/sql_08_category_mix_by_icb.png`)*
+![Category mix by ICB](images/sql_08_category_mix_by_icb.png)
 
 No. Every one of the five ICBs prescribes the same five categories in exactly the same order by item volume, Cardiovascular, then Diabetes, then Mental Health, then Respiratory, then Pain Relief, without exception. The differences between ICBs are entirely a matter of scale, not a difference in which health conditions are more common in one area versus another.
 
@@ -380,7 +321,7 @@ GROUP BY `year_month`
 ORDER BY `year_month`;
 ```
 
-*(Add a screenshot here, `images/sql_09_items_vs_cost_by_month.png`)*
+![Items vs cost by month](images/sql_09_items_vs_cost_by_month.png)
 
 Items grew from 2.48 million in April 2025 to 2.52 million in March 2026, up 1.7 per cent, essentially flat across the year. Total cost, by contrast, held steady between £7.0 million and £7.9 million a month through December 2025, then dropped sharply to £4.78 million in January 2026 and stayed low for the rest of the period, a fall of 35.6 per cent from April to March. This is a genuine step-change rather than a gradual trend, and it is flagged in this project as an open question rather than a forced explanation. The two most likely causes, a pricing or tariff change, or a shift towards generic alternatives, cannot be distinguished using this dataset alone.
 
@@ -394,7 +335,7 @@ Moved into Power BI for the visual and interactive work. All screenshots are in 
 
 ## Page 1: Overview
 
-*(Add a screenshot here, `images/page1.png`)*
+![Page 1 screenshot](images/page1.png)
 
 This is the landing page of the report, designed to answer "what do I need to know in the first ten seconds" before anyone digs into the detail pages.
 
@@ -414,7 +355,7 @@ This is the landing page of the report, designed to answer "what do I need to kn
 
 ## Page 2: Category Deep-Dive
 
-*(Add a screenshot here, `images/page2.png`)*
+![Page 2 screenshot](images/page2.png)
 
 This page moves from the whole-network view into the individual drugs driving each category's cost.
 
@@ -432,7 +373,7 @@ This page moves from the whole-network view into the individual drugs driving ea
 
 ## Page 3: ICB & Practice Comparison
 
-*(Add a screenshot here, `images/page3.png`)*
+![Page 3 screenshot](images/page3.png)
 
 The final page shifts focus onto geography and individual practices, and surfaces the project's one open, unresolved finding.
 
