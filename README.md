@@ -37,7 +37,7 @@ A three page Power BI report analysing over two million real NHS prescribing rec
 | Python, loading to MySQL | Loads the cleaned CSV into a local MySQL database | [uploading_to_MYSQL.ipynb](./uploading_to_MYSQL.ipynb) |
 | SQL queries | All business question queries used to answer the report's core questions | [london_prescribing_sql.sql](./london_prescribing_sql.sql) |
 | Power BI report | Full three page .pbix file, open in Power BI Desktop to explore | [Download .pbix](./nhs.pbix) |
-| Power BI theme | Custom NHS branded colour theme used throughout the report | [nhs_london_prescribing_theme.json](./nhs_london_prescribing_theme.json) |
+
 
 ---
 
