@@ -3,7 +3,7 @@
 **Industry:** Healthcare and Public Sector Data
 **Data period:** April 2025 to March 2026
 
-> **A note on the data:** every figure in this project comes from real, publicly released NHS Business Services Authority (NHSBSA) open data, covering prescribing across five London Integrated Care Boards (ICBs) over twelve consecutive months. Nothing here is simulated or estimated — every number quoted in this README was checked directly against the underlying SQL output before being written down.
+> **A note on the data:** every figure in this project comes from real, publicly released NHS Business Services Authority (NHSBSA) open data, covering prescribing across five London Integrated Care Boards (ICBs) over twelve consecutive months. Nothing here is simulated or estimated. Every number quoted in this README was checked directly against the underlying SQL output before being written down.
 
 ---
 
@@ -15,7 +15,7 @@
 
 ## TL;DR
 
-A three page Power BI dashboard analysing over two million real NHS prescribing records across five London ICBs and ten common drugs, built on a cleaned and merged data model with Python, explored through SQL, and finished with a custom NHS-branded Power BI theme, KPI cards, and a page navigator.
+A three page Power BI report analysing over two million real NHS prescribing records across five London ICBs and ten common drugs, built on a cleaned and merged data model with Python, explored through SQL, and finished with a custom NHS branded Power BI theme, KPI cards, and a page navigator.
 
 **Key findings:**
 
@@ -35,15 +35,15 @@ A three page Power BI dashboard analysing over two million real NHS prescribing 
 | Raw data | Original, unmodified monthly NHSBSA exports | [Raw data folder](./Raw%20data) |
 | Python cleaning and merging | Combines 12 monthly NHSBSA exports, keeps only needed columns, adds disease category labels, checks for unmatched rows | [nhs_prescribing.ipynb](./nhs_prescribing.ipynb) |
 | Python, loading to MySQL | Loads the cleaned CSV into a local MySQL database | [uploading_to_MYSQL.ipynb](./uploading_to_MYSQL.ipynb) |
-| SQL queries | All business-question queries used to answer the report's core questions | [london_prescribing_sql.sql](./london_prescribing_sql.sql) |
+| SQL queries | All business question queries used to answer the report's core questions | [london_prescribing_sql.sql](./london_prescribing_sql.sql) |
 | Power BI report | Full three page .pbix file, open in Power BI Desktop to explore | [Download .pbix](./nhs.pbix) |
-| Power BI theme | Custom NHS-branded colour theme used throughout the report | [nhs_london_prescribing_theme.json](./nhs_london_prescribing_theme.json) |
+| Power BI theme | Custom NHS branded colour theme used throughout the report | [nhs_london_prescribing_theme.json](./nhs_london_prescribing_theme.json) |
 
 ---
 
 ## Why I Built This Project
 
-Healthcare spending is a topic almost everyone has an opinion on, but the public rarely sees the actual numbers behind it. I wanted to work with a genuinely large, messy, real-world government dataset rather than a pre-cleaned tutorial file, and use it to answer a specific, open question: **does how often a drug is prescribed actually predict how much it costs the NHS?**
+Healthcare spending is a topic almost everyone has an opinion on, but the public rarely sees the actual numbers behind it. I wanted to work with a genuinely large, messy, real world government dataset rather than a pre cleaned tutorial file, and use it to answer a specific, open question: **does how often a drug is prescribed actually predict how much it costs the NHS?**
 
 I deliberately narrowed the scope to five London ICBs and ten common drugs across five everyday health categories, diabetes, mental health, respiratory, cardiovascular and pain relief, so the project could go deep rather than broad. Over two million prescribing records later, the answer turned out to be more interesting than expected. Cost and volume regularly point in opposite directions, and one finding, an unexplained 35.6 per cent cost drop starting January 2026, is a genuinely open question I would want to take to a real stakeholder to investigate further.
 
@@ -53,7 +53,7 @@ The goal throughout was to give an honest account of what the data actually show
 
 ## Project Overview
 
-A data analysis project looking at NHS prescribing cost and volume across five London ICBs between April 2025 and March 2026. Built for a portfolio piece using real NHSBSA open prescribing data, working through the full pipeline, raw data, Python cleaning, MySQL, SQL analysis, and a three page interactive Power BI dashboard.
+A data analysis project looking at NHS prescribing cost and volume across five London ICBs between April 2025 and March 2026. Built for a portfolio piece using real NHSBSA open prescribing data, working through the full pipeline, raw data, Python cleaning, MySQL, SQL analysis, and a three page interactive Power BI report.
 
 The project covers **2,035,897 prescribing records** across **5 London ICBs**, **10 drugs**, and **5 disease categories**, spanning 12 consecutive months.
 
@@ -83,7 +83,7 @@ The core question: does prescribing volume predict prescribing cost? Put simply,
 |---|---|
 | Programming and cleaning | Python (Pandas), Jupyter Notebook |
 | Database management | MySQL, SQLAlchemy, PyMySQL |
-| Visualisation and dashboard | Power BI |
+| Visualisation and reporting | Power BI |
 | Data storage | CSV files |
 | Version control | GitHub |
 
@@ -135,13 +135,13 @@ All 12 monthly exports were combined into a single table using `pandas` and `glo
 
 ![Mapping drugs to disease categories](images/py_03_category_mapping.png)
 
-Since NHSBSA data does not pre-label drugs by disease category, a 9th column was added using a manual Python dictionary lookup built by hand for the 10 target drugs.
+Since NHSBSA data does not pre label drugs by disease category, a 9th column was added using a manual Python dictionary lookup built by hand for the 10 target drugs.
 
-**Checking what didn't match, rather than assuming the mapping worked**
+**Checking what did not match, rather than assuming the mapping worked**
 
 ![Checking for unmatched rows](images/py_04_missing_check.png)
 
-313 rows did not match any of the 10 target drugs. Checking exactly which drug they belonged to, rather than dropping them blindly, showed all 313 were a single stray drug, Almotriptan, that had slipped through the original download filter. This is a deliberate two-step habit: build the mapping, then verify what it missed, since it is easy to assume a lookup dictionary worked and never actually check.
+313 rows did not match any of the 10 target drugs. Checking exactly which drug they belonged to, rather than dropping them blindly, showed all 313 were a single stray drug, Almotriptan, that had slipped through the original download filter. This is a deliberate two step habit: build the mapping, then verify what it missed, since it is easy to assume a lookup dictionary worked and never actually check.
 
 **Removing the unmatched rows and exporting the final file**
 
@@ -157,7 +157,7 @@ Final dataset: **2,035,897 rows**, down from 2,036,210 before the cleanup, 9 col
 
 ![Loading the cleaned data into MySQL](images/py_06_mysql_load.png)
 
-The cleaned CSV was loaded into a local MySQL database using `pandas.to_sql()` with `sqlalchemy` and `pymysql`, rather than `LOAD DATA INFILE`, which repeatedly hit local file permission restrictions in this environment. Database credentials are read from environment variables rather than hardcoded, so this notebook is safe to publish as-is. Row count in MySQL matched the cleaned CSV exactly, 2,035,897 rows.
+The cleaned CSV was loaded into a local MySQL database using `pandas.to_sql()` with `sqlalchemy` and `pymysql`, rather than `LOAD DATA INFILE`, which repeatedly hit local file permission restrictions in this environment. Database credentials are read from environment variables rather than hardcoded, so this notebook is safe to publish as is. Row count in MySQL matched the cleaned CSV exactly, 2,035,897 rows.
 
 ---
 
@@ -165,11 +165,11 @@ The cleaned CSV was loaded into a local MySQL database using `pandas.to_sql()` w
 
 **Queries:** [london_prescribing_sql.sql](./london_prescribing_sql.sql)
 
-Each query below was written to answer a specific business question, and every result was cross-checked directly against the Power BI dashboard before being finalised.
+Each query below was written to answer a specific business question, and every result was cross checked directly against the Power BI report before being finalised.
 
 ---
 
-**Business question: What's the overall scale of prescribing across London?**
+**Business question: What is the overall scale of prescribing across London?**
 
 ```sql
 SELECT
@@ -253,7 +253,7 @@ Insulin glargine drives Diabetes cost at £13.16 million from only 308,442 items
 
 ---
 
-**Business question: What's the average cost per item across all 10 drugs?**
+**Business question: What is the average cost per item across all 10 drugs?**
 
 ```sql
 SELECT bnf_chemical_substance,
@@ -267,7 +267,7 @@ ORDER BY avg_cost_per_item DESC;
 
 ![Average cost per item](images/sql_06_cost_per_item.png)
 
-Insulin glargine is the single most expensive drug per item at £42.66, followed by Beclometasone dipropionate at £20.62. At the other end, Amlodipine is the cheapest at £0.75 per item. That is a roughly 57 times spread between the most and least expensive drug in the whole dataset, and it is exactly why cost and prescription volume tell two different stories.
+Insulin glargine is the single most expensive drug per item at £42.66, followed by Beclometasone dipropionate at £20.62. At the other end, Amlodipine is the cheapest at £0.75 per item. That is roughly a 57 times spread between the most and least expensive drug in the whole dataset, and it is exactly why cost and prescription volume tell two different stories.
 
 ---
 
@@ -287,7 +287,7 @@ LIMIT 10;
 
 Medicus Health Partners, in North Central London, tops the list at £886,450. Notably, 6 of the 10 highest spending practices sit in South East London, Nexus Health Group, The Lewisham Care Partnership, Modality Lewisham, Valentine Health Partnership, Sidcup Medical Centre, and Eltham Medical Practice, despite South East London not being the highest spending ICB overall. Spend at the practice level is concentrated, not evenly spread.
 
-*One data quality issue caught while building this in Power BI is worth noting here: two different practices in two different ICBs are both named "Churchill Medical Centre". A naive Top 10 filter on practice name alone merged them incorrectly and pushed a genuine top-10 practice out of the list. The fix was to filter on a combined practice name and ICB field instead, so two same-named practices in different boroughs are correctly treated as distinct entities.*
+*One data quality issue caught while building this in Power BI is worth noting here: two different practices in two different ICBs are both named "Churchill Medical Centre". A naive Top 10 filter on practice name alone merged them incorrectly and pushed a genuine top 10 practice out of the list. The fix was to filter on a combined practice name and ICB field instead, so two same named practices in different boroughs are correctly treated as distinct entities.*
 
 ---
 
@@ -321,7 +321,7 @@ ORDER BY `year_month`;
 
 ![Items vs cost by month](images/sql_09_items_vs_cost_by_month.png)
 
-Items grew from 2.48 million in April 2025 to 2.52 million in March 2026, up 1.7 per cent, essentially flat across the year. Total cost, by contrast, held steady between £7.0 million and £7.9 million a month through December 2025, then dropped sharply to £4.78 million in January 2026 and stayed low for the rest of the period, a fall of 35.6 per cent from April to March. This is a genuine step-change rather than a gradual trend, and it is flagged in this project as an open question rather than a forced explanation. The two most likely causes, a pricing or tariff change, or a shift towards generic alternatives, cannot be distinguished using this dataset alone.
+Items grew from 2.48 million in April 2025 to 2.52 million in March 2026, up 1.7 per cent, essentially flat across the year. Total cost, by contrast, held steady between £7.0 million and £7.9 million a month through December 2025, then dropped sharply to £4.78 million in January 2026 and stayed low for the rest of the period, a fall of 35.6 per cent from April to March. This is a genuine step change rather than a gradual trend, and it is flagged in this project as an open question rather than a forced explanation. The two most likely causes, a pricing or tariff change, or a shift towards generic alternatives, cannot be distinguished using this dataset alone.
 
 ---
 
@@ -351,17 +351,17 @@ This is the landing page of the report, designed to answer "what do I need to kn
 
 ---
 
-## Page 2: Category Deep-Dive
+## Page 2: Category Deep Dive
 
 ![Page 2 screenshot](images/page2.png)
 
-This page moves from the whole-network view into the individual drugs driving each category's cost.
+This page moves from the whole network view into the individual drugs driving each category's cost.
 
-**Key finding banner** Just two drugs, Insulin glargine and Beclometasone, make up 51 per cent of all prescribing costs, even though they're only a small part of total prescriptions. The other 8 drugs are cheap and prescribed a lot, but they barely add to the overall cost.
+**Key finding banner** Just two drugs, Insulin glargine and Beclometasone, make up 51 per cent of all prescribing costs, even though they are only a small part of total prescriptions. The other 8 drugs are cheap and prescribed a lot, but they barely add to the overall cost.
 
 **Top drug by cost, within each category, grouped bar chart** Every category's two drugs shown side by side, darker bar for the higher cost drug, lighter bar for the lower cost drug. Respiratory's gap is by far the largest, Beclometasone towering over Salbutamol, followed by Diabetes, where Insulin glargine still costs notably more than Metformin despite Metformin being prescribed far more often.
 
-**Average cost per item, all 10 drugs ranked, horizontal bar chart** All ten drugs ranked by cost per item, colour coded by category. Insulin glargine and Beclometasone sit clearly apart from the rest at the top, £42.66 and £20.62 per item, while the remaining eight drugs cluster near the bottom of the scale, all under £4 per item. This single chart is the clearest visual proof in the whole report that a small number of low-volume drugs can dominate cost while the majority of prescriptions barely register.
+**Average cost per item, all 10 drugs ranked, horizontal bar chart** All ten drugs ranked by cost per item, colour coded by category. Insulin glargine and Beclometasone sit clearly apart from the rest at the top, £42.66 and £20.62 per item, while the remaining eight drugs cluster near the bottom of the scale, all under £4 per item. This single chart is the clearest visual proof in the whole report that a small number of low volume drugs can dominate cost while the majority of prescriptions barely register.
 
 **Detail table** Every one of the 10 drugs listed with total items, total cost, and average cost per item, sorted highest cost first, so Beclometasone and Insulin glargine sit at the top of the table, directly under the key finding banner they support.
 
@@ -369,7 +369,7 @@ This page moves from the whole-network view into the individual drugs driving ea
 
 ---
 
-## Page 3: ICB & Practice Comparison
+## Page 3: ICB and Practice Comparison
 
 ![Page 3 screenshot](images/page3.png)
 
@@ -377,7 +377,7 @@ The final page shifts focus onto geography and individual practices, and surface
 
 **Anomaly banner** Styled with a red accent to visually distinguish it from the two blue "confirmed finding" banners on the earlier pages, since this one flags a genuine open question rather than a closed finding: prescriptions stayed roughly the same all year, up 1.7 per cent, but costs suddenly dropped by 35.6 per cent in January 2026, a sudden drop, not something that happened slowly.
 
-**Total items vs. total cost, by month, dual-axis combo chart** Items shown as light blue-grey bars, cost as a red line, both plotted against separate scales so both series stay readable despite their very different units. The two track each other closely from April through December 2025, then the red cost line breaks away sharply in January 2026 while the bars stay essentially flat, a clean visual proof of the step-change described in the banner above.
+**Total items versus total cost, by month, dual axis combo chart** Items shown as light blue grey bars, cost as a red line, both plotted against separate scales so both series stay readable despite their very different units. The two track each other closely from April through December 2025, then the red cost line breaks away sharply in January 2026 while the bars stay essentially flat, a clean visual proof of the step change described in the banner above.
 
 **Top 10 practices by total cost, table** Medicus Health Partners leads at £886,450. South East London holds 6 of the 10 highest spending practices, despite not being the highest spending ICB overall, showing that spend is concentrated in a handful of large practices in that borough rather than spread evenly across it.
 
@@ -389,9 +389,9 @@ The final page shifts focus onto geography and individual practices, and surface
 
 ## Skills This Project Demonstrates
 
-- End-to-end data pipeline construction, from raw multi-file government exports through Python cleaning, MySQL loading, SQL analysis, and finally an interactive Power BI report
-- Data quality verification as a habit, not an afterthought, including checking for unmatched category mappings and catching a duplicate-name filtering bug through independent SQL verification
-- SQL query writing across aggregation, grouping, and multi-dimensional business questions
+- End to end data pipeline construction, from raw multi file government exports through Python cleaning, MySQL loading, SQL analysis, and finally an interactive Power BI report
+- Data quality verification as a habit, not an afterthought, including checking for unmatched category mappings and catching a duplicate name filtering bug through independent SQL verification
+- SQL query writing across aggregation, grouping, and multi dimensional business questions
 - Power BI report design, including a custom theme, KPI cards with coloured accent bars, dynamic DAX measures, and a page navigator
 - Translating raw statistics into plain English findings, and being willing to flag an anomaly as genuinely unresolved rather than forcing an explanation the data does not fully support
 
@@ -404,13 +404,13 @@ The final page shifts focus onto geography and individual practices, and surface
 - North West London has the highest total cost, £19.2 million, despite North East London having slightly more prescribed items
 - Every one of the five London ICBs prescribes the same categories in the same order, cost differences come from scale, not differing health needs
 - South East London holds 6 of the 10 highest spending practices, despite not being the highest spending ICB overall
-- Prescribing volume stayed almost flat across the year, up 1.7 per cent, but total cost suddenly dropped 35.6 per cent starting January 2026, an unexplained step-change flagged for further investigation
+- Prescribing volume stayed almost flat across the year, up 1.7 per cent, but total cost suddenly dropped 35.6 per cent starting January 2026, an unexplained step change flagged for further investigation
 
 ---
 
 ## Limitations
 
-- Disease category mapping is manual. The 10 drugs were mapped to 5 categories by hand, since NHSBSA data does not include this label. A drug prescribed off-label for a condition outside its usual category would not be reflected here
+- Disease category mapping is manual. The 10 drugs were mapped to 5 categories by hand, since NHSBSA data does not include this label. A drug prescribed off label for a condition outside its usual category would not be reflected here
 - The January 2026 cost drop is flagged, not explained. This dataset alone cannot distinguish between a pricing or tariff policy change and a shift towards generic alternatives, both are plausible, and confirming either would need additional NHSBSA pricing data outside this project's scope
 - Ten drugs and five ICBs is a deliberately narrow slice of a much larger national dataset, chosen to keep the analysis manageable and reproducible, rather than to represent all of NHS prescribing
 
@@ -418,7 +418,7 @@ The final page shifts focus onto geography and individual practices, and surface
 
 ## What Could Be Added With More Time
 
-- A drill-through page allowing any practice or drug to be explored in full detail
+- A drill through page allowing any practice or drug to be explored in full detail
 - Direct NHSBSA pricing and tariff data, to properly investigate the cause of the January 2026 cost drop rather than only flagging it
 - Extending the same analysis to additional ICBs outside London, to see whether the "identical category ranking" finding holds true nationally
 
@@ -435,6 +435,10 @@ NHS Business Services Authority (NHSBSA), [English Prescribing Dataset (EPD) wit
 I built this report as part of my own practice in data analysis and business intelligence, with a particular interest in healthcare and public sector data. I am currently looking for opportunities in London within data analysis or business intelligence roles, and I would welcome the chance to talk through this project, the choices behind it, or any part of the underlying data model.
 
 Feel free to open the .pbix file yourself, explore the pages, and reach out with any questions or feedback.
+
+
+
+---
 
 ## Contact
 
